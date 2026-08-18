@@ -1,8 +1,14 @@
 [package]
-name = "network"
+name = "polaris-network-native"
 version = "0.1.0"
 edition = "2024"
+publish = false
+
+[lib]
+name = "polaris_network_native"
 
 [dependencies]
 renet = "2.0.0"
 renet_netcode = "2.0.0"
+snow = "0.10.0"
+thiserror = "2.0.19"
