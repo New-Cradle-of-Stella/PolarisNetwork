@@ -13,7 +13,7 @@ use snow::{Builder, HandshakeState};
 use crate::{
     Bootstrap, Channel, DisconnectReason, NetworkError, NetworkResult,
     bootstrap::noise_params,
-    protocol::{MAX_BOOTSTRAP_PACKET_SIZE, PROTOCOL_HEADER},
+    protocol::{BOOTSTRAP_MAX_PACKET_SIZE, PROTOCOL_HEADER},
     unix_time,
 };
 
@@ -99,7 +99,7 @@ impl NetworkClient {
         let mut handshake = Builder::new(noise_params())
             .remote_public_key(&bootstrap.public_key)?
             .build_initiator()?;
-        let mut request = [0; MAX_BOOTSTRAP_PACKET_SIZE];
+        let mut request = [0; BOOTSTRAP_MAX_PACKET_SIZE];
         request[..PROTOCOL_HEADER.len()].copy_from_slice(&PROTOCOL_HEADER);
         let request_size = handshake.write_message(&[], &mut request[PROTOCOL_HEADER.len()..])?
             + PROTOCOL_HEADER.len();
@@ -195,7 +195,7 @@ impl NetworkClient {
         };
         attempt.elapsed += delta;
         attempt.since_last_send += delta;
-        let mut response_packet = [0; MAX_BOOTSTRAP_PACKET_SIZE];
+        let mut response_packet = [0; BOOTSTRAP_MAX_PACKET_SIZE];
 
         loop {
             let (response_size, server_address) =
@@ -217,7 +217,7 @@ impl NetworkClient {
                 continue;
             };
 
-            let mut token_bytes = [0; MAX_BOOTSTRAP_PACKET_SIZE];
+            let mut token_bytes = [0; BOOTSTRAP_MAX_PACKET_SIZE];
             let token_size = match attempt.handshake.read_message(response, &mut token_bytes) {
                 Ok(size) => size,
                 Err(_) => continue,

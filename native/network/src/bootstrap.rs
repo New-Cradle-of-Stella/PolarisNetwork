@@ -12,8 +12,8 @@ use snow::{Builder, params::NoiseParams};
 use crate::{
     NetworkError, NetworkResult,
     protocol::{
-        CONNECT_TOKEN_LIFETIME_SECONDS, MAX_BOOTSTRAP_PACKET_SIZE, NOISE_PATTERN, PROTOCOL_HEADER,
-        PROTOCOL_ID,
+        BOOTSTRAP_MAX_PACKET_SIZE, BOOTSTRAP_NOISE_PATTERN, CONNECT_TOKEN_LIFETIME_SECONDS,
+        PROTOCOL_HEADER, PROTOCOL_ID,
     },
 };
 
@@ -92,7 +92,7 @@ impl BootstrapServer {
             self.response_cache.pop_front();
         }
 
-        let mut request_packet = [0; MAX_BOOTSTRAP_PACKET_SIZE];
+        let mut request_packet = [0; BOOTSTRAP_MAX_PACKET_SIZE];
 
         loop {
             let (request_size, client_address) = match self.socket.recv_from(&mut request_packet) {
@@ -141,10 +141,10 @@ impl BootstrapServer {
                 None,
                 &self.netcode_key,
             )?;
-            let mut token_bytes = Vec::with_capacity(MAX_BOOTSTRAP_PACKET_SIZE);
+            let mut token_bytes = Vec::with_capacity(BOOTSTRAP_MAX_PACKET_SIZE);
             token.write(&mut token_bytes)?;
 
-            let mut response_packet = [0; MAX_BOOTSTRAP_PACKET_SIZE];
+            let mut response_packet = [0; BOOTSTRAP_MAX_PACKET_SIZE];
             response_packet[..PROTOCOL_HEADER.len()].copy_from_slice(&PROTOCOL_HEADER);
             let response_size = handshake
                 .write_message(&token_bytes, &mut response_packet[PROTOCOL_HEADER.len()..])?
@@ -166,5 +166,7 @@ impl BootstrapServer {
 }
 
 pub(crate) fn noise_params() -> NoiseParams {
-    NOISE_PATTERN.parse().expect("valid Noise protocol name")
+    BOOTSTRAP_NOISE_PATTERN
+        .parse()
+        .expect("valid Noise protocol name")
 }
