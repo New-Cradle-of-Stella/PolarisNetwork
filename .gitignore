@@ -1,0 +1,5 @@
+# AI 编码工具的本机状态
+.claude/
+.codex/
+.codex-work/
+.agents/
